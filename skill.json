@@ -1,0 +1,56 @@
+{
+  "name": "mastergo-analyzer",
+  "version": "1.0.0",
+  "description": "MasterGo 设计原型自动分析工具",
+  "author": "Ruflo Team",
+  "commands": [
+    {
+      "name": "/mastergo",
+      "description": "分析整个 MasterGo 原型页面",
+      "usage": "/mastergo <url> [output-dir]",
+      "examples": [
+        "/mastergo https://mastergo.com/xxx/yyy",
+        "/mastergo https://mastergo.com/xxx/yyy ./output"
+      ]
+    },
+    {
+      "name": "/mastergo-element",
+      "description": "分析 MasterGo 原型中的特定组件",
+      "usage": "/mastergo-element <url> <selector> [output-dir]",
+      "examples": [
+        "/mastergo-element https://mastergo.com/xxx/yyy \".submit-btn\"",
+        "/mastergo-element https://mastergo.com/xxx/yyy \"#header\" ./output"
+      ]
+    },
+    {
+      "name": "/mastergo-auth",
+      "description": "分析需要登录的 MasterGo 原型",
+      "usage": "/mastergo-auth [选项] <url>",
+      "options": [
+        "--cookie <string>",
+        "--cookie-file <path>",
+        "--profile <path>",
+        "--interactive"
+      ]
+    },
+    {
+      "name": "/mastergo-cookie",
+      "description": "交互式提取并保存 MasterGo Cookie",
+      "usage": "/mastergo-cookie"
+    }
+  ],
+  "workflow": {
+    "整页实现": [
+      "/mastergo <url>",
+      "请根据 mastergo-output/ 实现这个页面"
+    ],
+    "组件修改": [
+      "/mastergo-element <url> <selector>",
+      "请根据 element-info.json 调整样式"
+    ],
+    "需要登录": [
+      "/mastergo-cookie",
+      "/mastergo-auth --cookie-file ~/.mastergo/cookie.txt <url>"
+    ]
+  }
+}

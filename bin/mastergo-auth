@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+#
+# MasterGo 认证分析器
+# 用法：mastergo-auth [选项] <url>
+#
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ANALYZER="$SCRIPT_DIR/mastergo-auth.js"
+
+# 颜色输出
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+print_status() { echo -e "${BLUE}[INFO]${NC} $1"; }
+print_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+print_tip() { echo -e "${YELLOW}[TIP]${NC} $1"; }
+
+# 显示帮助
+show_help() {
+    echo "MasterGo 认证分析器 - 支持登录保护的页面"
+    echo ""
+    echo "用法：$0 [选项] <url>"
+    echo ""
+    echo "选项:"
+    echo "  --cookie \"<string>\"   Cookie 字符串"
+    echo "  --cookie-file <path>    Cookie 文件路径"
+    echo "  --profile <path>        浏览器配置文件目录"
+    echo "  --output <dir>          输出目录（默认：./mastergo-output）"
+    echo "  --interactive           交互模式"
+    echo "  --help                  显示帮助"
+    echo ""
+    echo "示例:"
+    echo "  # 使用 Cookie 字符串"
+    echo "  $0 --cookie \"token=xxx; session=yyy\" https://mastergo.com/xxx"
+    echo ""
+    echo "  # 使用 Cookie 文件"
+    echo "  $0 --cookie-file ~/.mastergo/cookie.txt https://mastergo.com/xxx"
+    echo ""
+    echo "  # 使用浏览器配置文件（首次登录，之后无需重复）"
+    echo "  $0 --profile ~/.mastergo/profile https://mastergo.com/xxx"
+    echo ""
+    echo "  # 交互模式"
+    echo "  $0 --interactive"
+    echo ""
+    print_tip "如何获取 Cookie:"
+    echo "  1. 在浏览器中打开 MasterGo 并登录"
+    echo "  2. 按 F12 打开开发者工具"
+    echo "  3. 切换到 Network 标签"
+    echo "  4. 刷新页面"
+    echo "  5. 点击任意请求，查看 Request Headers"
+    echo "  6. 复制 Cookie 字段的全部内容"
+}
+
+# 检查依赖
+check_dependencies() {
+    if [ ! -d "$SCRIPT_DIR/node_modules/playwright" ]; then
+        print_status "安装依赖..."
+        cd "$SCRIPT_DIR"
+        npm install
+        npx playwright install chromium
+        cd - > /dev/null
+    fi
+}
+
+# 主程序
+if [ $# -eq 0 ]; then
+    show_help
+    exit 1
+fi
+
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    show_help
+    exit 0
+fi
+
+check_dependencies
+
+print_status "启动 MasterGo 认证分析器..."
+
+cd "$SCRIPT_DIR"
+node "$ANALYZER" "$@"
+cd - > /dev/null
+
+print_success "分析完成!"

@@ -1,0 +1,42 @@
+{
+  "name": "mastergo-analyzer",
+  "version": "1.0.0",
+  "description": "MasterGo 设计原型自动分析工具",
+  "main": "src/analyzer.js",
+  "bin": {
+    "mastergo-analyze": "./bin/mastergo-analyze",
+    "mastergo-element": "./bin/mastergo-element",
+    "mastergo-auth": "./bin/mastergo-auth",
+    "mastergo-cookie": "./bin/mastergo-cookie-extract.js"
+  },
+  "scripts": {
+    "analyze": "node src/analyzer.js",
+    "element": "node src/element.js",
+    "auth": "node src/auth.js",
+    "install-browser": "npx playwright install chromium"
+  },
+  "keywords": [
+    "mastergo",
+    "design-tool",
+    "frontend",
+    "playwright",
+    "claude-code",
+    "ai-assistant"
+  ],
+  "author": "Ruflo Team",
+  "license": "MIT",
+  "dependencies": {
+    "playwright": "^1.40.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ruvnet/mastergo-analyzer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ruvnet/mastergo-analyzer/issues"
+  },
+  "homepage": "https://github.com/ruvnet/mastergo-analyzer#readme"
+}
