@@ -23,26 +23,21 @@ const CONFIG = {
   highlightBorder: '3px solid red',
 };
 
-// 注入高亮脚本
 async function highlightElement(page, selector) {
   await page.evaluate((selector) => {
     const element = document.querySelector(selector);
     if (element) {
-      // 保存原始样式
       const originalStyle = element.getAttribute('style') || '';
       element.setAttribute('data-original-style', originalStyle);
 
-      // 添加高亮
       element.style.outline = '3px solid red';
       element.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
 
-      // 滚动到视图中
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, selector);
 }
 
-// 恢复元素原始样式
 async function restoreElementStyle(page, selector) {
   await page.evaluate((selector) => {
     const element = document.querySelector(selector);
@@ -55,7 +50,6 @@ async function restoreElementStyle(page, selector) {
   }, selector);
 }
 
-// 提取元素详细信息
 async function extractElementDetail(page, selector) {
   return await page.evaluate((selector) => {
     const element = document.querySelector(selector);
@@ -66,7 +60,6 @@ async function extractElementDetail(page, selector) {
     const rect = element.getBoundingClientRect();
     const style = window.getComputedStyle(element);
 
-    // 获取所有属性
     const attributes = {};
     for (const attr of element.attributes) {
       if (!attr.name.startsWith('data-') || attr.name === 'data-testid') {
@@ -74,21 +67,17 @@ async function extractElementDetail(page, selector) {
       }
     }
 
-    // 获取子元素文本
     const textContent = element.textContent?.trim().slice(0, 500);
 
-    // 获取背景图片
     const backgroundImage = style.backgroundImage;
     const hasImage = backgroundImage && backgroundImage !== 'none';
 
-    // 检测交互状态
     const isInteractive =
       element.tagName === 'BUTTON' ||
       element.tagName === 'A' ||
       element.onclick !== null ||
       style.cursor === 'pointer';
 
-    // 层级信息
     let depth = 0;
     let parent = element.parentElement;
     while (parent) {
@@ -103,7 +92,6 @@ async function extractElementDetail(page, selector) {
       classes: element.className?.split(' ').filter(c => c) || [],
       attributes,
 
-      // 位置
       bounds: {
         x: Math.round(rect.x),
         y: Math.round(rect.y),
@@ -115,27 +103,22 @@ async function extractElementDetail(page, selector) {
         left: Math.round(rect.left),
       },
 
-      // 样式详情
       styles: {
-        // 布局
         display: style.display,
         position: style.position,
         zIndex: style.zIndex,
 
-        // Flexbox
         flexDirection: style.flexDirection,
         justifyContent: style.justifyContent,
         alignItems: style.alignItems,
         flexWrap: style.flexWrap,
         gap: style.gap,
 
-        // Grid
         gridTemplateColumns: style.gridTemplateColumns,
         gridTemplateRows: style.gridTemplateRows,
         gridColumn: style.gridColumn,
         gridRow: style.gridRow,
 
-        // 间距
         margin: {
           top: style.marginTop,
           right: style.marginRight,
@@ -149,7 +132,6 @@ async function extractElementDetail(page, selector) {
           left: style.paddingLeft,
         },
 
-        // 尺寸
         width: style.width,
         height: style.height,
         minWidth: style.minWidth,
@@ -157,7 +139,6 @@ async function extractElementDetail(page, selector) {
         maxWidth: style.maxWidth,
         maxHeight: style.maxHeight,
 
-        // 排版
         fontSize: style.fontSize,
         fontFamily: style.fontFamily,
         fontWeight: style.fontWeight,
@@ -168,13 +149,11 @@ async function extractElementDetail(page, selector) {
         textTransform: style.textTransform,
         color: style.color,
 
-        // 背景
         backgroundColor: style.backgroundColor,
         backgroundImage: style.backgroundImage,
         backgroundSize: style.backgroundSize,
         backgroundPosition: style.backgroundPosition,
 
-        // 边框
         border: {
           top: style.borderTop,
           right: style.borderRight,
@@ -189,11 +168,9 @@ async function extractElementDetail(page, selector) {
         borderColor: style.borderColor,
         borderStyle: style.borderStyle,
 
-        // 阴影
         boxShadow: style.boxShadow,
         textShadow: style.textShadow,
 
-        // 效果
         opacity: style.opacity,
         transform: style.transform,
         transition: style.transition,
@@ -204,51 +181,22 @@ async function extractElementDetail(page, selector) {
         overflowX: style.overflowX,
         overflowY: style.overflowY,
 
-        // 其他
         cursor: style.cursor,
         visibility: style.visibility,
         pointerEvents: style.pointerEvents,
       },
 
-      // 内容
       text: textContent,
       hasImage,
       isInteractive,
       depth,
 
-      // 父子关系
       parentTag: element.parentElement?.tagName?.toLowerCase() || null,
       childCount: element.children.length,
     };
   }, selector);
 }
 
-// 生成对比报告
-async function generateComparisonReport(elementInfo, existingCode) {
-  const report = {
-    elementSelector: elementInfo.selector,
-    timestamp: new Date().toISOString(),
-    comparisons: [],
-    suggestions: [],
-  };
-
-  // 如果没有现有代码，只输出设计规格
-  if (!existingCode) {
-    report.suggestions.push({
-      type: 'info',
-      message: '未提供现有代码，以下是设计规格：',
-      spec: elementInfo,
-    });
-    return report;
-  }
-
-  // 对比逻辑（简化版）
-  // 实际使用中可以根据现有代码的样式进行对比
-
-  return report;
-}
-
-// 主函数
 async function analyzeElement(url, selector, outputDir = './mastergo-element-output') {
   console.log('[MasterGo 元素分析器] 启动分析...');
   console.log(`  URL: ${url}`);
@@ -258,7 +206,6 @@ async function analyzeElement(url, selector, outputDir = './mastergo-element-out
   let browser;
 
   try {
-    // 启动浏览器
     console.log('[1/5] 启动无头浏览器...');
     browser = await chromium.launch({
       headless: true,
@@ -269,18 +216,15 @@ async function analyzeElement(url, selector, outputDir = './mastergo-element-out
       viewport: CONFIG.viewport,
     });
 
-    // 访问页面
     console.log('[2/5] 访问 MasterGo 原型...');
     await page.goto(url, {
       waitUntil: 'networkidle',
       timeout: CONFIG.timeout,
     });
 
-    // 等待内容加载
     await page.waitForSelector('body', { timeout: 5000 });
     await page.waitForTimeout(2000);
 
-    // 检查元素是否存在
     console.log('[3/5] 定位目标元素...');
     const elementHandle = await page.$(selector);
 
@@ -293,33 +237,31 @@ async function analyzeElement(url, selector, outputDir = './mastergo-element-out
       throw new Error(`Element not found: ${selector}`);
     }
 
-    // 高亮元素
     console.log('[4/5] 截取元素截图（带高亮）...');
     await highlightElement(page, selector);
-    await page.waitForTimeout(300); // 等待高亮渲染
+    await page.waitForTimeout(300);
 
-    // 确保输出目录存在
-    await fs.mkdir(outputDir, { recursive: true });
+    try {
+      await fs.mkdir(outputDir, { recursive: true });
 
-    // 截取元素截图
-    const elementScreenshotPath = path.join(outputDir, 'element-highlight.png');
-    await elementHandle.screenshot({ path: elementScreenshotPath });
-    console.log(`  元素截图已保存：${elementScreenshotPath}`);
+      const elementScreenshotPath = path.join(outputDir, 'element-highlight.png');
+      await elementHandle.screenshot({ path: elementScreenshotPath });
+      console.log(`  元素截图已保存：${elementScreenshotPath}`);
 
-    // 也截取完整页面（带高亮）
-    const pageScreenshotPath = path.join(outputDir, 'page-with-highlight.png');
-    await page.screenshot({ path: pageScreenshotPath, fullPage: true });
-    console.log(`  页面截图已保存：${pageScreenshotPath}`);
+      const pageScreenshotPath = path.join(outputDir, 'page-with-highlight.png');
+      await page.screenshot({ path: pageScreenshotPath, fullPage: true });
+      console.log(`  页面截图已保存：${pageScreenshotPath}`);
 
-    // 恢复原始样式
-    await restoreElementStyle(page, selector);
+      await restoreElementStyle(page, selector);
 
-    // 截取原始截图（无高亮）
-    const originalScreenshotPath = path.join(outputDir, 'element-original.png');
-    await elementHandle.screenshot({ path: originalScreenshotPath });
-    console.log(`  原始元素截图已保存：${originalScreenshotPath}`);
+      const originalScreenshotPath = path.join(outputDir, 'element-original.png');
+      await elementHandle.screenshot({ path: originalScreenshotPath });
+      console.log(`  原始元素截图已保存：${originalScreenshotPath}`);
+    } catch (screenshotError) {
+      await restoreElementStyle(page, selector);
+      throw screenshotError;
+    }
 
-    // 提取元素详细信息
     console.log('[5/5] 提取元素详细信息...');
     const elementInfo = await extractElementDetail(page, selector);
 
@@ -328,18 +270,15 @@ async function analyzeElement(url, selector, outputDir = './mastergo-element-out
       throw new Error(elementInfo.error);
     }
 
-    // 写入 JSON
     const jsonPath = path.join(outputDir, 'element-info.json');
     await fs.writeFile(jsonPath, JSON.stringify(elementInfo, null, 2));
     console.log(`  元素信息已保存：${jsonPath}`);
 
-    // 生成 CSS 代码片段
     const cssSnippet = generateCSSSnippet(elementInfo);
     const cssPath = path.join(outputDir, 'element.css');
     await fs.writeFile(cssPath, cssSnippet);
     console.log(`  CSS 代码片段已保存：${cssPath}`);
 
-    // 生成 Tailwind 代码片段
     const tailwindSnippet = generateTailwindSnippet(elementInfo);
     const tailwindPath = path.join(outputDir, 'element.tailwind.txt');
     await fs.writeFile(tailwindPath, tailwindSnippet);
@@ -372,7 +311,6 @@ async function analyzeElement(url, selector, outputDir = './mastergo-element-out
   }
 }
 
-// 生成 CSS 代码片段
 function generateCSSSnippet(info) {
   if (info.error) return '/* 元素信息获取失败 */';
 
@@ -431,7 +369,6 @@ function generateCSSSnippet(info) {
 }`;
 }
 
-// 生成 Tailwind 类名（简化版）
 function generateTailwindSnippet(info) {
   if (info.error) return '<!-- 元素信息获取失败 -->';
 
@@ -509,7 +446,6 @@ function generateTailwindSnippet(info) {
 */`;
 }
 
-// CLI 入口
 const args = process.argv.slice(2);
 
 if (args.length < 2) {

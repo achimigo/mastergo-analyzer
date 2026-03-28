@@ -20,10 +20,9 @@ const readline = require('readline');
 // 配置
 const CONFIG = {
   viewport: { width: 1920, height: 1080 },
-  timeout: 60000, // 增加超时时间用于登录
+  timeout: 60000,
 };
 
-// 解析 Cookie 字符串
 function parseCookie(cookieString) {
   const cookies = [];
   const pairs = cookieString.split(';');
@@ -33,7 +32,6 @@ function parseCookie(cookieString) {
     const value = valueParts.join('=');
 
     if (name && value) {
-      // 确定 Cookie 的作用域
       cookies.push({
         name: name.trim(),
         value: decodeURIComponent(value.trim()),
@@ -46,20 +44,17 @@ function parseCookie(cookieString) {
   return cookies;
 }
 
-// 从文件读取 Cookie
 async function readCookieFromFile(filePath) {
   const content = await fs.readFile(filePath, 'utf-8');
   return parseCookie(content);
 }
 
-// 保存 Cookie 到文件
 async function saveCookieToFile(filePath, cookies) {
   const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
   await fs.mkdir(path.dirname(filePath), { recursive: true });
   await fs.writeFile(filePath, cookieString);
 }
 
-// 交互式登录
 async function loginInteractively(browser) {
   console.log('[登录] 打开登录窗口，请在浏览器中登录 MasterGo...');
 
@@ -67,7 +62,6 @@ async function loginInteractively(browser) {
     viewport: CONFIG.viewport,
   });
 
-  // 访问 MasterGo 登录页
   await page.goto('https://mastergo.com', {
     waitUntil: 'domcontentloaded',
     timeout: CONFIG.timeout,
@@ -78,7 +72,6 @@ async function loginInteractively(browser) {
   console.log('  2. 登录成功后，按 Ctrl+C 继续');
   console.log('  3. 浏览器状态将被保存，下次无需重复登录');
 
-  // 等待用户确认
   await new Promise((resolve) => {
     process.once('SIGINT', () => {
       console.log('\n[继续] 准备保存登录状态...');
@@ -89,7 +82,6 @@ async function loginInteractively(browser) {
   return page;
 }
 
-// 主函数：带认证的分析
 async function analyzeWithAuth(url, options = {}) {
   const {
     cookieString,
@@ -107,11 +99,10 @@ async function analyzeWithAuth(url, options = {}) {
   let browser;
 
   try {
-    // 启动浏览器
     console.log('[1/5] 启动浏览器...');
 
     const launchOptions = {
-      headless: !profilePath, // 使用配置文件时不启用无头模式
+      headless: !profilePath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -119,7 +110,6 @@ async function analyzeWithAuth(url, options = {}) {
       ],
     };
 
-    // 如果使用配置文件
     if (profilePath) {
       launchOptions.userDataDir = profilePath;
       console.log(`  配置文件目录：${profilePath}`);
@@ -131,7 +121,6 @@ async function analyzeWithAuth(url, options = {}) {
       viewport: CONFIG.viewport,
     });
 
-    // 添加 Cookie
     if (cookieString) {
       console.log('[2/5] 设置 Cookie...');
       const cookies = parseCookie(cookieString);
@@ -146,18 +135,15 @@ async function analyzeWithAuth(url, options = {}) {
 
     const page = await context.newPage();
 
-    // 访问页面
     console.log('[3/5] 访问 MasterGo...');
     await page.goto(url, {
       waitUntil: 'networkidle',
       timeout: CONFIG.timeout,
     });
 
-    // 检查是否登录成功
     const pageTitle = await page.title();
     console.log(`  页面标题：${pageTitle}`);
 
-    // 检测是否需要登录
     if (pageTitle.includes('登录') || page.url().includes('login')) {
       console.log('[警告] 检测到登录页面，可能需要认证');
 
@@ -170,11 +156,9 @@ async function analyzeWithAuth(url, options = {}) {
       }
     }
 
-    // 等待内容加载
     await page.waitForSelector('body', { timeout: 5000 });
-    await page.waitForTimeout(3000); // 额外等待确保内容渲染
+    await page.waitForTimeout(3000);
 
-    // 截取截图
     console.log('[4/5] 截取页面截图...');
     await fs.mkdir(outputDir, { recursive: true });
 
@@ -185,10 +169,8 @@ async function analyzeWithAuth(url, options = {}) {
     });
     console.log(`  截图已保存：${screenshotPath}`);
 
-    // 保存 Cookie（如果有新的）
     if (saveProfile && profilePath) {
       console.log('[5/5] 保存浏览器配置文件...');
-      // 浏览器配置文件已自动保存
       console.log(`  配置文件已保存到：${profilePath}`);
     }
 
@@ -206,7 +188,6 @@ async function analyzeWithAuth(url, options = {}) {
   }
 }
 
-// 命令行交互模式
 async function interactiveMode() {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -259,7 +240,6 @@ async function interactiveMode() {
   }
 }
 
-// CLI 入口
 const args = process.argv.slice(2);
 
 function showHelp() {
