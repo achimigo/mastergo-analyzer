@@ -96,6 +96,55 @@ source ~/.bashrc
 
 ## 输出文件
 
+### Claude Code Skill 集成
+
+**1. 安装 Skill**
+
+```bash
+# 方式 1: 使用 install.sh 脚本
+./install.sh
+
+# 方式 2: 手动配置
+ln -s $(pwd)/skills/mastergo-analyzer ~/.claude/skills/mastergo-analyzer
+```
+
+**2. Skill 文件结构**
+
+```
+skills/mastergo-analyzer/
+├── skill.json      # Skill 配置 (命令定义、工作流)
+├── command.md      # 命令使用指南
+├── SKILL.md        # Skill 简介
+└── docs/           # 详细文档
+```
+
+**3. 可用的 Skill 命令**
+
+| 命令 | 功能 | 使用场景 |
+|------|------|---------|
+| `/mastergo` | 整页分析 | 从零实现完整页面 |
+| `/mastergo-element` | 元素分析 | 修改特定组件 |
+| `/mastergo-auth` | 认证分析 | 需要登录的页面 |
+| `/mastergo-cookie` | Cookie 提取 | 获取认证 Cookie |
+
+**4. 典型工作流**
+
+```
+# 整页实现
+/mastergo <url>
+→ 等待分析完成
+→ "请根据 mastergo-output/ 实现这个页面"
+
+# 组件修改
+/mastergo-element <url> <selector>
+→ 等待分析完成
+→ "请根据 element-info.json 调整样式"
+```
+
+---
+
+## 输出文件
+
 ### 整页分析
 
 ```
