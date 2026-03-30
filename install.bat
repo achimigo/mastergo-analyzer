@@ -1,9 +1,11 @@
 @echo off
-chcp 65001 >nul
 setlocal EnableDelayedExpansion
 
 :: MasterGo Analyzer - Windows 安装脚本
 :: 用法：双击运行 install.bat 或在命令行执行
+
+:: 设置 UTF-8 编码
+chcp 65001 >nul 2>&1
 
 echo =========================================
 echo   MasterGo Analyzer 安装脚本 (Windows)
@@ -12,25 +14,33 @@ echo.
 
 :: 检查 Node.js
 echo [INFO] 检查 Node.js...
-where node >nul 2>nul
+node --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] Node.js 未安装
     echo   请下载并安装：https://nodejs.org/
     echo   建议安装 LTS 版本 (v18+)
+    echo.
     pause
     exit /b 1
 )
 
-for /f "tokens=*" %%i in ('node -v') do set NODE_VERSION=%%i
+for /f "tokens=*" %%i in ('node -v 2^>^&1') do set NODE_VERSION=%%i
 echo [INFO] Node.js 已安装：%NODE_VERSION%
 
 :: 检查 npm
-where npm >nul 2>nul
+echo.
+echo [INFO] 检查 npm...
+npm --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] npm 未找到
+    echo   Node.js 可能未正确安装
+    echo.
     pause
     exit /b 1
 )
+
+for /f "tokens=*" %%i in ('npm -v 2^>^&1') do set NPM_VERSION=%%i
+echo [INFO] npm 已安装：%NPM_VERSION%
 
 :: 获取脚本所在目录
 set SCRIPT_DIR=%~dp0
