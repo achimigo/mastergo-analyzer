@@ -32,6 +32,61 @@
 - Playwright（自动安装）
 - Chromium 浏览器（自动安装）
 
+## 📦 安装
+
+### Linux / macOS
+
+```bash
+# 1. 克隆仓库
+git clone https://github.com/achimigo/mastergo-analyzer.git
+cd mastergo-analyzer
+
+# 2. 运行安装脚本
+source install.sh
+
+# 3. 加载配置
+source ~/.bashrc  # 或 source ~/.zshrc
+```
+
+### Windows
+
+**方式 1: 使用批处理文件（推荐）**
+
+```cmd
+# 1. 克隆仓库
+git clone https://github.com/achimigo/mastergo-analyzer.git
+cd mastergo-analyzer
+
+# 2. 双击运行 install.bat
+install.bat
+
+# 3. 加载环境变量
+call setenv.bat
+```
+
+**方式 2: 使用 PowerShell**
+
+```powershell
+# 1. 克隆仓库
+git clone https://github.com/achimigo/mastergo-analyzer.git
+cd mastergo-analyzer
+
+# 2. 运行安装脚本
+.\install.ps1
+
+# 3. 加载配置
+. .\setenv.ps1
+```
+
+### 依赖说明
+
+安装脚本会自动检查和安装：
+- ✅ Node.js v18+（如未安装会提示）
+- ✅ Playwright（本地或全局）
+- ✅ Chromium 浏览器（~200MB，全局缓存）
+
+如果系统中已有 Playwright 或 Chromium，会自动复用，不会重复安装。
+
 ## 快速开始
 
 ```bash
